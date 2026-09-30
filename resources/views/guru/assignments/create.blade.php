@@ -8,6 +8,12 @@
         </div>
     </x-slot>
 
+    <!-- CSS Tambahan untuk merapikan desain CKEditor agar sesuai dengan Tailwind -->
+    <style>
+        .ck-editor__editable_inline { min-height: 200px; border-bottom-left-radius: 0.75rem !important; border-bottom-right-radius: 0.75rem !important; font-size: 0.875rem; }
+        .ck-toolbar { border-top-left-radius: 0.75rem !important; border-top-right-radius: 0.75rem !important; background-color: #f4f7fa !important; border-color: #e5e7eb !important; }
+    </style>
+
     <div class="py-8 md:py-12">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden relative">
@@ -35,7 +41,6 @@
                                 <label class="block font-extrabold text-sm text-[#053F5C] mb-2 uppercase tracking-wide">Pilih Kelas *</label>
                                 <select name="classroom_id" class="w-full bg-white border-gray-200 focus:ring-2 focus:ring-[#429EBD] rounded-xl px-4 py-3" required>
                                     <option value="">-- Pilih Kelas --</option>
-                                    <!-- BYPASS BLADE COMPILER DENGAN RAW PHP -->
                                     <?php foreach($classrooms as$kelas): ?>
                                         <option value="<?php echo $kelas->id; ?>">
                                             <?php echo $kelas->name; ?> (<?php echo$kelas->academic_year; ?>)
@@ -49,9 +54,10 @@
                                 <input type="datetime-local" name="due_date" class="w-full bg-white border-gray-200 focus:ring-2 focus:ring-[#429EBD] rounded-xl px-4 py-3" required>
                             </div>
 
-                            <div class="md:col-span-2">
+                            <div class="md:col-span-2 text-gray-800">
                                 <label class="block font-extrabold text-sm text-[#053F5C] mb-2 uppercase tracking-wide">Instruksi *</label>
-                                <textarea name="description" rows="3" class="w-full bg-white border-gray-200 focus:ring-2 focus:ring-[#429EBD] rounded-xl px-4 py-3" placeholder="Kerjakan seluruh soal di bawah ini dengan teliti..." required></textarea>
+                                <!-- Tambahkan ID "editor" di sini -->
+                                <textarea name="description" id="editor" class="w-full bg-white border-gray-200 rounded-xl px-4 py-3" placeholder="Ketik instruksi di sini..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -69,15 +75,12 @@
                                     <div class="absolute top-4 right-4">
                                         <button type="button" x-on:click="removeQuestion(q.id)" class="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2 px-4 rounded-lg font-bold">X</button>
                                     </div>
-
                                     <h4 class="font-black text-sm text-[#053F5C] mb-4" x-text="`Soal #${index + 1}`"></h4>
-
                                     <div class="space-y-4">
                                         <div>
                                             <label class="block font-bold text-xs text-gray-500 mb-1">Pertanyaan</label>
                                             <textarea :name="`pg_questions[${index}][question]`" x-model="q.question" rows="2" class="w-full bg-[#f4f7fa] border-0 focus:ring-2 focus:ring-[#429EBD] rounded-xl px-4 py-3 text-sm font-semibold" placeholder="Tulis pertanyaan di sini..." required></textarea>
                                         </div>
-
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
                                             <div>
                                                 <label class="block font-bold text-xs text-gray-500 mb-1">Pilihan A</label>
@@ -96,7 +99,6 @@
                                                 <input type="text" :name="`pg_questions[${index}][option_d]`" x-model="q.option_d" class="w-full border-gray-200 rounded-lg text-sm px-3 py-2" required>
                                             </div>
                                         </div>
-
                                         <div class="pt-2">
                                             <label class="block font-extrabold text-sm text-[#053F5C] mb-2 uppercase tracking-widest">Kunci Jawaban Benar</label>
                                             <div class="flex gap-4">
@@ -112,7 +114,6 @@
                                 </div>
                             </template>
                         </div>
-
                         <button type="button" x-on:click="addQuestion()" class="mt-5 w-full border-2 border-dashed border-[#429EBD] text-[#053F5C] bg-[#f4f7fa] hover:bg-[#9FE7F5]/30 font-bold py-4 rounded-xl transition-all flex justify-center items-center">
                             + Tambah Soal Pilihan Ganda
                         </button>
@@ -128,4 +129,18 @@
             </div>
         </div>
     </div>
+
+    <!-- Script CKEditor 5 -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            ClassicEditor
+                .create(document.querySelector('#editor'), {
+                    toolbar: [ 'heading', '|', 'bold', 'italic', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', 'undo', 'redo' ]
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        });
+    </script>
 </x-app-layout>

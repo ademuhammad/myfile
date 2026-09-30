@@ -6,12 +6,17 @@
         </div>
     </x-slot>
 
+    <!-- CSS Tambahan -->
+    <style>
+        .ck-editor__editable_inline { min-height: 200px; border-bottom-left-radius: 0.75rem !important; border-bottom-right-radius: 0.75rem !important; font-size: 0.875rem; }
+        .ck-toolbar { border-top-left-radius: 0.75rem !important; border-top-right-radius: 0.75rem !important; background-color: #f4f7fa !important; border-color: #e5e7eb !important; }
+    </style>
+
     <div class="py-8 md:py-12">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden relative">
                 <div class="absolute top-0 left-0 w-full h-2 bg-[#429EBD]"></div>
 
-                <!-- Load Alpine JS Data dengan format JSON yang sudah diperbaiki spasinya -->
                 <form action="{{ route('assignments.update', $assignment->id) }}" method="POST" class="p-6 md:p-10 space-y-8"
                       x-data="{
                           pgQuestions: {{ Js::from($assignment->multipleChoices->map(fn($q) => [
@@ -29,7 +34,8 @@
                     @csrf
                     @method('PUT')
 
-                    <div class="bg-[#f4f7fa] p-6 rounded-2xl border border-gray-100 space-y-6">
+                   <div class="bg-[#f4f7fa] p-6 rounded-2xl border border-gray-100 space-y-6">
+                        <!-- Baris 1 & 2: Grid untuk Input Pendek (Judul, Kelas, Deadline) -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="md:col-span-2">
                                 <label class="block font-extrabold text-sm text-[#053F5C] mb-2 uppercase tracking-wide">Judul Tugas *</label>
@@ -38,9 +44,8 @@
                             <div>
                                 <label class="block font-extrabold text-sm text-[#053F5C] mb-2 uppercase tracking-wide">Pilih Kelas *</label>
                                 <select name="classroom_id" class="w-full bg-white border-gray-200 rounded-xl px-4 py-3" required>
-                                    <!-- PERBAIKAN: Spasi pada foreach -->
-                                    <?php foreach($classrooms as$kelas): ?>
-                                        <option value="<?php echo $kelas->id; ?>" <?php echo $assignment->classroom_id ==$kelas->id ? 'selected' : ''; ?>>
+                                    <?php foreach($classrooms as $kelas): ?>
+                                        <option value="<?php echo $kelas->id; ?>" <?php echo $assignment->classroom_id == $kelas->id ? 'selected' : ''; ?>>
                                             <?php echo $kelas->name; ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -50,13 +55,18 @@
                                 <label class="block font-extrabold text-sm text-[#053F5C] mb-2 uppercase tracking-wide">Batas Waktu (Deadline) *</label>
                                 <input type="datetime-local" name="due_date" value="{{ \Carbon\Carbon::parse(old('due_date', $assignment->due_date))->format('Y-m-d\TH:i') }}" class="w-full bg-white border-gray-200 rounded-xl px-4 py-3" required>
                             </div>
-                            <div class="md:col-span-2">
-                                <label class="block font-extrabold text-sm text-[#053F5C] mb-2 uppercase tracking-wide">Instruksi *</label>
-                                <textarea name="description" rows="3" class="w-full bg-white border-gray-200 rounded-xl px-4 py-3" required>{{ old('description', $assignment->description) }}</textarea>
+                        </div>
+
+                        <!-- Baris 3: Kolom Tunggal Khusus Instruksi (Lebih Luas) -->
+                        <div class="w-full text-gray-800 pt-2 border-t border-gray-200/60 mt-6">
+                            <label class="block font-extrabold text-sm text-[#053F5C] mb-3 uppercase tracking-wide">Instruksi Tugas *</label>
+
+                            <!-- Area CKEditor -->
+                            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                                <textarea name="description" id="editor" class="w-full bg-white border-0 focus:ring-0 px-4 py-3" required>{{ old('description', $assignment->description) }}</textarea>
                             </div>
                         </div>
                     </div>
-
                     <!-- Builder Soal PG Edit -->
                     <div>
                         <div class="flex justify-between items-center mb-4 border-t pt-6">
@@ -106,4 +116,18 @@
             </div>
         </div>
     </div>
+
+    <!-- Script CKEditor 5 -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            ClassicEditor
+                .create(document.querySelector('#editor'), {
+                    toolbar: [ 'heading', '|', 'bold', 'italic', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', 'undo', 'redo' ]
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        });
+    </script>
 </x-app-layout>
